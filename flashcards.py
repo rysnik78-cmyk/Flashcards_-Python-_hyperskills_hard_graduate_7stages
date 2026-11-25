@@ -85,8 +85,26 @@ class FlashcardsBase:
         return list_of_hardest_cards, hardest_card_score
 
 def main():
+    args = sys.argv  # we get the list of arguments from command line
+    # print('Arguments:', args)
+    parameters = {'--import_from=': '', '--export_to=': ''}
+    number_of_args = len(args)
+    for i in range(number_of_args):
+        if '--import_from=' in args[i]:
+            parameters['--import_from='] = args[i].split('=')[1]
+        elif '--export_to=' in args[i]:
+            parameters['--export_to='] = args[i].split('=')[1]
+
     flashcards_base = FlashcardsBase()
     logg = LoggerIO()
+
+    if parameters['--import_from=']:
+        file_name = parameters['--import_from=']
+        if not os.path.exists(file_name):
+            logg.logged_print('File not found.')
+        else:
+            load_cards_number = flashcards_base.import_from_json(file_name)
+            logg.logged_print(f'{load_cards_number} cards have been loaded.')
 
 
     # number_of_cards = input('Input the number of cards:\n')
@@ -143,7 +161,6 @@ def main():
                     logg.logged_print(f'{load_cards_number} cards have been loaded.')
                 continue
 
-
             case 'export':
                 # TODO export to json
                 file_name = logg.logged_input('File name:')
@@ -187,7 +204,11 @@ def main():
 
             case 'exit':
                 logg.logged_print('Bye bye!')
+                if parameters['--export_to=']:
+                    flashcards_base.export_to_json(parameters['--export_to='])
+                    logg.logged_print(f'{len(flashcards_base.flashcards)} cards have been saved.')
                 break
+
     logg.logg_close()
 
 if __name__ == "__main__":
