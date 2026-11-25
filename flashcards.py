@@ -11,6 +11,18 @@ class FlashcardsBase:
     def return_flashcard_data(self, card):
         return card, self.flashcards[card]
 
+    def check_card(self, card):
+        return card in self.flashcards
+
+    def check_definition(self, definition):
+        return definition in self.flashcards.values()
+
+    def return_flashcard_card_from_definition(self, definition):
+        for key,value in self.flashcards.items():
+            if value == definition:
+                return key
+        return None
+
 def main():
     flashcards_base = FlashcardsBase()
 
@@ -18,9 +30,20 @@ def main():
     flashcards_base.card_limit = int(number_of_cards)
     for i in range(flashcards_base.card_limit):
         print(f'The term for card #{i+1}:')
-        card = input()
+        while True:
+            card = input()
+            if flashcards_base.check_card(card):
+                print(f'The term "{card}" already exists. Try again:')
+                continue
+            break
+
         print(f'The definition for card #{i + 1}:')
-        definition = input()
+        while True:
+            definition = input()
+            if flashcards_base.check_definition(definition):
+                print(f'The definition "{definition}" already exists. Try again:')
+                continue
+            break
         flashcards_base.add_flashcard(card, definition)
 
     for card in flashcards_base.flashcards.items():
@@ -31,9 +54,11 @@ def main():
         if user_answer == card[1]:
             print('Correct!')
         else:
-            print(f'Wrong. The right answer is "{card[1]}".')
-
-
+            if flashcards_base.check_definition(user_answer):
+                print(f'Wrong. The right answer is "{card[1]}"', end='')
+                print(f' but your definition is correct for {flashcards_base.return_flashcard_card_from_definition(user_answer)}.')
+            else:
+                print(f'Wrong. The right answer is "{card[1]}"')
 
 if __name__ == "__main__":
     main()
